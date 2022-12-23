@@ -365,8 +365,16 @@ public class ConfigFileManager {
         var moduleLibraryNames = new ArrayList<String>(1);
         try (var apkFile = new ZipFile(toGlobalNamespace(path))) {
             readDexes(apkFile, preLoadedDexes, obfuscate);
-            readName(apkFile, "assets/xposed_init", moduleClassNames);
-            readName(apkFile, "assets/native_init", moduleLibraryNames);
+            try {
+                readName(apkFile, "META-INF/xposed/xposed_init", moduleClassNames);
+            } catch (Exception ignored) {
+                readName(apkFile, "assets/xposed_init", moduleClassNames);
+            }
+            try {
+                readName(apkFile, "META-INF/xposed/native_init", moduleClassNames);
+            } catch (Exception ignored) {
+                readName(apkFile, "assets/native_init", moduleLibraryNames);
+            }
         } catch (IOException e) {
             Log.e(TAG, "Can not open " + path, e);
             return null;
